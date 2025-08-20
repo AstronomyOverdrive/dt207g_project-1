@@ -49,6 +49,22 @@ app.get("/public/about", async (req, res) => {
 		res.status(500).json({error: "Internal error: " + error});
 	}
 });
+// Post order
+app.post("/public/order/place", async (req, res) => {
+	try {
+		const dbModel = await mongoose.model("orders", schemas.orderSchema);
+		const newOrder = {
+			items: req.body.items,
+			customerName: req.body.name,
+			customerPhone: req.body.phone,
+			completed: false
+		}
+		const result = await dbModel.create(newOrder);
+		res.status(201).json(result);
+	} catch (error) {
+		res.status(500).json({error: "Internal error: " + error});
+	}
+});
 
 // Start server
 app.listen(process.env.PORT, () => {
