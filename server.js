@@ -28,9 +28,9 @@ async function dbConnect() {
 	}
 }
 
-// Private routing
-// Login staff
-app.post("/private/login", async (req, res) => {
+// Staff routing
+// Login
+app.post("/staff/login", async (req, res) => {
 	try {
 		const dbModel = await mongoose.model("staffacounts", schemas.staffSchema);
 		const user = await dbModel.find({username: req.body.username});
@@ -51,6 +51,47 @@ app.post("/private/login", async (req, res) => {
 		res.status(500).json({error: "Internal error: " + error});
 	}
 });
+// Register
+app.post("/register", authenticateToken, async (req, res) => {
+	try {
+		if (req.user.admin) {
+			const dbModel = await mongoose.model("staffacounts", schemas.staffSchema);
+			const user = await dbModel.find({username: req.body.username});
+			if (user.length === 0) { // Username is free
+				const hashedPassword = await bcrypt.hash(req.body.password, 10);
+				const result = await dbModel.create({
+					username: req.body.username,
+					password: hashedPassword,
+					admin: req.body.admin
+				});
+				res.status(201).json({message: "User "+req.body.username+" created"});
+			} else {
+				res.status(409).json({message: "Username "+req.body.username+" already taken"});
+			}
+		} else {
+			res.status(401).json({message: "Only admins can register new users"});
+		}
+	} catch (error) {
+		res.status(500).json({error: "Database error: " + error});
+	}
+});
+
+// Middleware authentication
+async function authenticateToken(req, res, next) {
+	const authHeader = req.headers["authorization"];
+	const token = authHeader && authHeader.split(" ")[1];
+	if (token == null) { // Check if user has a token
+		return res.status(401).json({message: "Missing token"});
+	}
+	// Check if token is valid
+	jwt.verify(token, process.env.ACCESS_TOKEN, (error, user) => {
+		if (error) {
+			return res.status(403).json({message: "Invalid token"});
+		}
+		req.user = user;
+		next();
+	});
+}
 
 // Public routing
 // Get menu
@@ -112,7 +153,7 @@ async function verifyOrder(order) {
 	if (order.items instanceof Array) {
 		// Check if array has items
 		if (order.items.length === 0) {
-			problems += "\nOrder kan inte vara tom";
+			problems += "\nOrder can't be empty";
 		} else {
 			// Check if order is of valid menu items
 			const dbModel = await mongoose.model("menuitems", schemas.menuSchema);
@@ -120,12 +161,12 @@ async function verifyOrder(order) {
 			order.items.forEach(item => {
 				const findItem = menuItems.find(menuItem => String(menuItem._id).includes(item));
 				if (findItem === undefined) {
-					problems += "\nOgiltig produkt";
+					problems += "\nInvalid product";
 				}
 			});
 		}
 	} else {
-		problems += "\nFel format på beställningen";
+		problems += "\nWrongly formatted order";
 	}
 	return problems;
 }
