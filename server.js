@@ -39,6 +39,16 @@ app.get("/public/menu", async (req, res) => {
 		res.status(500).json({error: "Internal error: " + error});
 	}
 });
+// Get about
+app.get("/public/about", async (req, res) => {
+	try {
+		const dbModel = await mongoose.model("about", schemas.aboutSchema);
+		const about = await dbModel.find({});
+		res.status(200).json(about);
+	} catch (error) {
+		res.status(500).json({error: "Internal error: " + error});
+	}
+});
 
 // Start server
 app.listen(process.env.PORT, () => {
