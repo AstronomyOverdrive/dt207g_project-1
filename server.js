@@ -48,7 +48,7 @@ app.post("/staff/user/login", async (req, res) => {
 			res.status(404).json({message: "User "+req.body.username+" not found"});
 		}
 	} catch (error) {
-		res.status(500).json({error: "Internal error: " + error});
+		res.status(500).json({message: "Internal error: " + error});
 	}
 });
 // Register user
@@ -72,7 +72,7 @@ app.post("/staff/user/register", authenticateToken, async (req, res) => {
 			res.status(401).json({message: "Only admins can register new users"});
 		}
 	} catch (error) {
-		res.status(500).json({error: "Internal error: " + error});
+		res.status(500).json({message: "Internal error: " + error});
 	}
 });
 // Delete user
@@ -86,7 +86,7 @@ app.delete("/staff/user/delete", authenticateToken, async (req, res) => {
 			res.status(401).json({message: "Only admins can remove users"});
 		}
 	} catch (error) {
-		res.status(500).json({error: "Internal error: " + error});
+		res.status(500).json({message: "Internal error: " + error});
 	}
 });
 // Get orders
@@ -96,7 +96,7 @@ app.get("/staff/orders/get", authenticateToken, async (req, res) => {
 		const orders = await dbModel.find({});
 		res.status(200).json(orders);
 	} catch (error) {
-		res.status(500).json({error: "Internal error: " + error});
+		res.status(500).json({message: "Internal error: " + error});
 	}
 });
 // Delete order
@@ -110,7 +110,7 @@ app.delete("/staff/orders/delete", authenticateToken, async (req, res) => {
 			res.status(401).json({message: "Only admins can remove orders"});
 		}
 	} catch (error) {
-		res.status(500).json({error: "Internal error: " + error});
+		res.status(500).json({message: "Internal error: " + error});
 	}
 });
 // Mark order as complete
@@ -120,7 +120,7 @@ app.put("/staff/orders/done", authenticateToken, async (req, res) => {
 		const result = await dbModel.updateOne({_id: req.body.id}, {$set: {completed: true}});
 		res.status(200).json(result);
 	} catch (error) {
-		res.status(500).json({error: "Internal error: " + error});
+		res.status(500).json({message: "Internal error: " + error});
 	}
 });
 // Add to menu
@@ -144,7 +144,7 @@ app.post("/staff/menu/add", authenticateToken, async (req, res) => {
 			res.status(401).json({message: "Only admins can add new menu items"});
 		}
 	} catch (error) {
-		res.status(500).json({error: "Internal error: " + error});
+		res.status(500).json({message: "Internal error: " + error});
 	}
 });
 // Delete menu item
@@ -158,7 +158,7 @@ app.delete("/staff/menu/delete", authenticateToken, async (req, res) => {
 			res.status(401).json({message: "Only admins can remove menu items"});
 		}
 	} catch (error) {
-		res.status(500).json({error: "Internal error: " + error});
+		res.status(500).json({message: "Internal error: " + error});
 	}
 });
 // Update menu item
@@ -182,7 +182,7 @@ app.put("/staff/menu/edit", authenticateToken, async (req, res) => {
 			res.status(401).json({message: "Only admins can edit menu items"});
 		}
 	} catch (error) {
-		res.status(500).json({error: "Internal error: " + error});
+		res.status(500).json({message: "Internal error: " + error});
 	}
 });
 // Update about description
@@ -196,7 +196,7 @@ app.put("/staff/about/edit", authenticateToken, async (req, res) => {
 			res.status(401).json({message: "Only admins can edit description"});
 		}
 	} catch (error) {
-		res.status(500).json({error: "Internal error: " + error});
+		res.status(500).json({message: "Internal error: " + error});
 	}
 });
 
@@ -225,7 +225,7 @@ app.get("/public/menu", async (req, res) => {
 		const menu = await dbModel.find({});
 		res.status(200).json(menu);
 	} catch (error) {
-		res.status(500).json({error: "Internal error: " + error});
+		res.status(500).json({message: "Internal error: " + error});
 	}
 });
 // Get about
@@ -235,7 +235,7 @@ app.get("/public/about", async (req, res) => {
 		const about = await dbModel.find({});
 		res.status(200).json(about);
 	} catch (error) {
-		res.status(500).json({error: "Internal error: " + error});
+		res.status(500).json({message: "Internal error: " + error});
 	}
 });
 // Find order
@@ -245,7 +245,7 @@ app.post("/public/order/find", async (req, res) => {
 		const order = await dbModel.find({_id: req.body.id});
 		res.status(200).json(order);
 	} catch (error) {
-		res.status(500).json({error: "Internal error: " + error});
+		res.status(500).json({message: "Internal error: " + error});
 	}
 });
 // Post order
@@ -266,7 +266,7 @@ app.post("/public/order/place", async (req, res) => {
 			res.status(400).json({message: errorMsg});
 		}
 	} catch (error) {
-		res.status(500).json({error: "Internal error: " + error});
+		res.status(500).json({message: "Internal error: " + error});
 	}
 });
 
