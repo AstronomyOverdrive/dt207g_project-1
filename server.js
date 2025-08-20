@@ -28,6 +28,30 @@ async function dbConnect() {
 	}
 }
 
+// Private routing
+// Login staff
+app.post("/private/login", async (req, res) => {
+	try {
+		const dbModel = await mongoose.model("staffacounts", schemas.staffSchema);
+		const user = await dbModel.find({username: req.body.username});
+		if (user.length !== 0) { // Check if user is found
+			const passwordsMatch = await bcrypt.compare(req.body.password, user[0].password);
+			if (passwordsMatch) {
+				// Sign JWT token
+				const payload = {username: user[0].username, admin: user[0].admin}
+				const token = jwt.sign(payload, process.env.ACCESS_TOKEN, {expiresIn: "8h"});
+				res.status(200).json({message: "Login successful", token});
+			} else {
+				res.status(401).json({message: "Invalid password"});
+			}
+		} else {
+			res.status(404).json({message: "User "+req.body.username+" not found"});
+		}
+	} catch (error) {
+		res.status(500).json({error: "Internal error: " + error});
+	}
+});
+
 // Public routing
 // Get menu
 app.get("/public/menu", async (req, res) => {
@@ -81,6 +105,7 @@ app.post("/public/order/place", async (req, res) => {
 	}
 });
 
+// Verify order items
 async function verifyOrder(order) {
 	let problems = "";
 	// Check if order.items is an array
