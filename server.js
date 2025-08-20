@@ -89,6 +89,16 @@ app.delete("/staff/user/delete", authenticateToken, async (req, res) => {
 		res.status(500).json({error: "Internal error: " + error});
 	}
 });
+// Get orders
+app.get("/staff/orders/get", authenticateToken, async (req, res) => {
+	try {
+		const dbModel = await mongoose.model("orders", schemas.orderSchema);
+		const orders = await dbModel.find({});
+		res.status(200).json(orders);
+	} catch (error) {
+		res.status(500).json({error: "Internal error: " + error});
+	}
+});
 
 // Middleware authentication
 async function authenticateToken(req, res, next) {
