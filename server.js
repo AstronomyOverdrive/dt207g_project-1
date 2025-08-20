@@ -161,6 +161,30 @@ app.delete("/staff/menu/delete", authenticateToken, async (req, res) => {
 		res.status(500).json({error: "Internal error: " + error});
 	}
 });
+// Update menu item
+app.put("/staff/menu/edit", authenticateToken, async (req, res) => {
+	try {
+		if (req.user.admin) { // Request done by an admin
+			const updatedItem = {
+				name: req.body.name,
+				description: req.body.description,
+				price: req.body.price
+			}
+			// Validate types
+			if (typeof updatedItem.name === "string" && typeof updatedItem.description === "string" && typeof updatedItem.price === "number") {
+				const dbModel = await mongoose.model("menuitems", schemas.menuSchema);
+				const result = await dbModel.updateOne({_id: req.body.id}, updatedItem);
+				res.status(200).json(result);
+			} else {
+				res.status(400).json({message: "Incorrect data type"});
+			}
+		} else {
+			res.status(401).json({message: "Only admins can edit menu items"});
+		}
+	} catch (error) {
+		res.status(500).json({error: "Internal error: " + error});
+	}
+});
 
 // Middleware authentication
 async function authenticateToken(req, res, next) {
