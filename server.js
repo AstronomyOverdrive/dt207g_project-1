@@ -29,8 +29,8 @@ async function dbConnect() {
 }
 
 // Staff routing
-// Login
-app.post("/staff/login", async (req, res) => {
+// Login user
+app.post("/staff/user/login", async (req, res) => {
 	try {
 		const dbModel = await mongoose.model("staffacounts", schemas.staffSchema);
 		const user = await dbModel.find({username: req.body.username});
@@ -51,10 +51,10 @@ app.post("/staff/login", async (req, res) => {
 		res.status(500).json({error: "Internal error: " + error});
 	}
 });
-// Register
-app.post("/register", authenticateToken, async (req, res) => {
+// Register user
+app.post("/staff/user/register", authenticateToken, async (req, res) => {
 	try {
-		if (req.user.admin) {
+		if (req.user.admin) { // Request done by an admin
 			const dbModel = await mongoose.model("staffacounts", schemas.staffSchema);
 			const user = await dbModel.find({username: req.body.username});
 			if (user.length === 0) { // Username is free
@@ -72,7 +72,21 @@ app.post("/register", authenticateToken, async (req, res) => {
 			res.status(401).json({message: "Only admins can register new users"});
 		}
 	} catch (error) {
-		res.status(500).json({error: "Database error: " + error});
+		res.status(500).json({error: "Internal error: " + error});
+	}
+});
+// Delete user
+app.delete("/staff/user/delete", authenticateToken, async (req, res) => {
+	try {
+		if (req.user.admin) { // Request done by an admin
+			const dbModel = await mongoose.model("staffacounts", schemas.staffSchema);
+			const result = await dbModel.deleteOne({username: req.body.username});
+			res.status(200).json(result);
+		} else {
+			res.status(401).json({message: "Only admins can remove users"});
+		}
+	} catch (error) {
+		res.status(500).json({error: "Internal error: " + error});
 	}
 });
 
