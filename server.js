@@ -147,6 +147,20 @@ app.post("/staff/menu/add", authenticateToken, async (req, res) => {
 		res.status(500).json({error: "Internal error: " + error});
 	}
 });
+// Delete menu item
+app.delete("/staff/menu/delete", authenticateToken, async (req, res) => {
+	try {
+		if (req.user.admin) { // Request done by an admin
+			const dbModel = await mongoose.model("menuitems", schemas.menuSchema);
+			const result = await dbModel.deleteOne({_id: req.body.id});
+			res.status(200).json(result);
+		} else {
+			res.status(401).json({message: "Only admins can remove menu items"});
+		}
+	} catch (error) {
+		res.status(500).json({error: "Internal error: " + error});
+	}
+});
 
 // Middleware authentication
 async function authenticateToken(req, res, next) {
