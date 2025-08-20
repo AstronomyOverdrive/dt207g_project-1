@@ -123,6 +123,30 @@ app.put("/staff/orders/done", authenticateToken, async (req, res) => {
 		res.status(500).json({error: "Internal error: " + error});
 	}
 });
+// Add to menu
+app.post("/staff/menu/add", authenticateToken, async (req, res) => {
+	try {
+		if (req.user.admin) { // Request done by an admin
+			const newItem = {
+				name: req.body.name,
+				description: req.body.description,
+				price: req.body.price
+			}
+			// Validate types
+			if (typeof newItem.name === "string" && typeof newItem.description === "string" && typeof newItem.price === "number") {
+				const dbModel = await mongoose.model("menuitems", schemas.menuSchema);
+				const result = await dbModel.create(newItem);
+				res.status(201).json({message: "Menu items "+req.body.name+" created"});
+			} else {
+				res.status(400).json({message: "Incorrect data type"});
+			}
+		} else {
+			res.status(401).json({message: "Only admins can add new menu items"});
+		}
+	} catch (error) {
+		res.status(500).json({error: "Internal error: " + error});
+	}
+});
 
 // Middleware authentication
 async function authenticateToken(req, res, next) {
