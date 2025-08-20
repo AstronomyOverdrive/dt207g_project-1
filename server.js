@@ -49,6 +49,16 @@ app.get("/public/about", async (req, res) => {
 		res.status(500).json({error: "Internal error: " + error});
 	}
 });
+// Find order
+app.post("/public/order/find", async (req, res) => {
+	try {
+		const dbModel = await mongoose.model("orders", schemas.orderSchema);
+		const order = await dbModel.find({_id: req.body.id});
+		res.status(200).json(order);
+	} catch (error) {
+		res.status(500).json({error: "Internal error: " + error});
+	}
+});
 // Post order
 app.post("/public/order/place", async (req, res) => {
 	try {
