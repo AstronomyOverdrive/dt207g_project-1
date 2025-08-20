@@ -113,6 +113,16 @@ app.delete("/staff/orders/delete", authenticateToken, async (req, res) => {
 		res.status(500).json({error: "Internal error: " + error});
 	}
 });
+// Mark order as complete
+app.put("/staff/orders/done", authenticateToken, async (req, res) => {
+	try {
+		const dbModel = await mongoose.model("orders", schemas.orderSchema);
+		const result = await dbModel.updateOne({_id: req.body.id}, {$set: {completed: true}});
+		res.status(200).json(result);
+	} catch (error) {
+		res.status(500).json({error: "Internal error: " + error});
+	}
+});
 
 // Middleware authentication
 async function authenticateToken(req, res, next) {
