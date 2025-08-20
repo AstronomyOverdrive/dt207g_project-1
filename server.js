@@ -185,6 +185,20 @@ app.put("/staff/menu/edit", authenticateToken, async (req, res) => {
 		res.status(500).json({error: "Internal error: " + error});
 	}
 });
+// Update about description
+app.put("/staff/about/edit", authenticateToken, async (req, res) => {
+	try {
+		if (req.user.admin) { // Request done by an admin
+			const dbModel = await mongoose.model("about", schemas.aboutSchema);
+			const result = await dbModel.findAndUpdateOne({}, {description: req.body.about});
+			res.status(200).json(result);
+		} else {
+			res.status(401).json({message: "Only admins can edit description"});
+		}
+	} catch (error) {
+		res.status(500).json({error: "Internal error: " + error});
+	}
+});
 
 // Middleware authentication
 async function authenticateToken(req, res, next) {
