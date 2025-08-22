@@ -37,6 +37,9 @@ async function populateDb() {
 			admin: true
 		});
 
+		const ordersModel = await mongoose.model("orders", schemas.orderSchema);
+		// Remove all entries
+		await ordersModel.deleteMany({});
 		// About
 		// Select / create model
 		const aboutModel = await mongoose.model("about", schemas.aboutSchema);

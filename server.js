@@ -190,7 +190,7 @@ app.put("/staff/about/edit", authenticateToken, async (req, res) => {
 	try {
 		if (req.user.admin) { // Request done by an admin
 			const dbModel = await mongoose.model("about", schemas.aboutSchema);
-			const result = await dbModel.findAndUpdateOne({}, {description: req.body.about});
+			const result = await dbModel.findOneAndUpdate({}, {description: req.body.about});
 			res.status(200).json(result);
 		} else {
 			res.status(401).json({message: "Only admins can edit description"});
