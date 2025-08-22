@@ -45,7 +45,7 @@ After starting the server you can access the API at: [http://0.0.0.0:8000/](http
 |Add menu item    |POST   |**/staff/menu/add**      |{"name": "Name", "description": "Description", "price": 200}                  |{"Authorization": "Bearer JSON.Web.Token"} |
 |Update menu item |PUT    |**/staff/menu/edit**     |{"name": "Name", "description": "Description", "price": 200, "id": "item_id"} |{"Authorization": "Bearer JSON.Web.Token"} |
 |Delete menu item |DELETE |**/staff/menu/delete**   |{"id": "order_id"}                                                            |{"Authorization": "Bearer JSON.Web.Token"} |
-|Update about     |PUT    |**/staff/about/edit**    |{"description": "Description"}                                                |{"Authorization": "Bearer JSON.Web.Token"} |
+|Update about     |PUT    |**/staff/about/edit**    |{"about": "Description"}                                                |{"Authorization": "Bearer JSON.Web.Token"} |
 
 *NOTE:* ***Bold paths*** *require user to be flagged as admin.*<br>
 *NOTE: Username must be between 5-25 characters*<br>
