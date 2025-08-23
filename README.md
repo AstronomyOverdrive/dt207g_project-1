@@ -57,7 +57,7 @@ After starting the server you can access the API at: [http://0.0.0.0:8000/](http
 |Read menu   |GET    |/public/menu        |                                                                                     |       |
 |Read about  |GET    |/public/about       |                                                                                     |       |
 |Read order  |POST   |/public/order/find  |{"id": "order_id"}                                                                   |       |
-|Place order |POST   |/public/order/place |{"items": ["item1_id", "item2_id"], "name": "Customer name", "phone", "0707070707"}  |       |
+|Place order |POST   |/public/order/place |{"items": ["item1_id", "item2_id"], "name": "Customer name", "phone": "0707070707"}  |       |
 
 ### Successful response codes (and useful body items)
 #### /staff:
