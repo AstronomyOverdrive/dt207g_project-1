@@ -33,7 +33,7 @@ async function dbConnect() {
 app.post("/staff/user/login", async (req, res) => {
 	try {
 		const dbModel = await mongoose.model("staffacounts", schemas.staffSchema);
-		const user = await dbModel.find({username: req.body.username});
+		const user = await dbModel.find({username: sanitizeInput(req.body.username)});
 		if (user.length !== 0) { // Check if user is found
 			const passwordsMatch = await bcrypt.compare(req.body.password, user[0].password);
 			if (passwordsMatch) {
@@ -56,13 +56,13 @@ app.post("/staff/user/register", authenticateToken, async (req, res) => {
 	try {
 		if (req.user.admin) { // Request done by an admin
 			const dbModel = await mongoose.model("staffacounts", schemas.staffSchema);
-			const user = await dbModel.find({username: req.body.username});
+			const user = await dbModel.find({username: sanitizeInput(req.body.username)});
 			if (user.length === 0) { // Username is free
 				const hashedPassword = await bcrypt.hash(req.body.password, 10);
 				const result = await dbModel.create({
-					username: req.body.username,
+					username: sanitizeInput(req.body.username),
 					password: hashedPassword,
-					admin: req.body.admin
+					admin: sanitizeInput(req.body.admin)
 				});
 				res.status(201).json({message: "User "+req.body.username+" created"});
 			} else {
@@ -80,7 +80,7 @@ app.delete("/staff/user/delete", authenticateToken, async (req, res) => {
 	try {
 		if (req.user.admin) { // Request done by an admin
 			const dbModel = await mongoose.model("staffacounts", schemas.staffSchema);
-			const result = await dbModel.deleteOne({username: req.body.username});
+			const result = await dbModel.deleteOne({username: sanitizeInput(req.body.username)});
 			res.status(200).json(result);
 		} else {
 			res.status(401).json({message: "Only admins can remove users"});
@@ -104,7 +104,7 @@ app.delete("/staff/orders/delete", authenticateToken, async (req, res) => {
 	try {
 		if (req.user.admin) { // Request done by an admin
 			const dbModel = await mongoose.model("orders", schemas.orderSchema);
-			const result = await dbModel.deleteOne({_id: req.body.id});
+			const result = await dbModel.deleteOne({_id: sanitizeInput(req.body.id)});
 			res.status(200).json(result);
 		} else {
 			res.status(401).json({message: "Only admins can remove orders"});
@@ -117,7 +117,7 @@ app.delete("/staff/orders/delete", authenticateToken, async (req, res) => {
 app.put("/staff/orders/done", authenticateToken, async (req, res) => {
 	try {
 		const dbModel = await mongoose.model("orders", schemas.orderSchema);
-		const result = await dbModel.updateOne({_id: req.body.id}, {$set: {completed: true}});
+		const result = await dbModel.updateOne({_id: sanitizeInput(req.body.id)}, {$set: {completed: true}});
 		res.status(200).json(result);
 	} catch (error) {
 		res.status(500).json({message: "Internal error: " + error});
@@ -128,9 +128,9 @@ app.post("/staff/menu/add", authenticateToken, async (req, res) => {
 	try {
 		if (req.user.admin) { // Request done by an admin
 			const newItem = {
-				name: req.body.name,
-				description: req.body.description,
-				price: req.body.price
+				name: sanitizeInput(req.body.name),
+				description: sanitizeInput(req.body.description),
+				price: sanitizeInput(req.body.price)
 			}
 			// Validate types
 			if (typeof newItem.name === "string" && typeof newItem.description === "string" && typeof newItem.price === "number") {
@@ -152,7 +152,7 @@ app.delete("/staff/menu/delete", authenticateToken, async (req, res) => {
 	try {
 		if (req.user.admin) { // Request done by an admin
 			const dbModel = await mongoose.model("menuitems", schemas.menuSchema);
-			const result = await dbModel.deleteOne({_id: req.body.id});
+			const result = await dbModel.deleteOne({_id: sanitizeInput(req.body.id)});
 			res.status(200).json(result);
 		} else {
 			res.status(401).json({message: "Only admins can remove menu items"});
@@ -166,14 +166,14 @@ app.put("/staff/menu/edit", authenticateToken, async (req, res) => {
 	try {
 		if (req.user.admin) { // Request done by an admin
 			const updatedItem = {
-				name: req.body.name,
-				description: req.body.description,
-				price: req.body.price
+				name: sanitizeInput(req.body.name),
+				description: sanitizeInput(req.body.description),
+				price: sanitizeInput(req.body.price)
 			}
 			// Validate types
 			if (typeof updatedItem.name === "string" && typeof updatedItem.description === "string" && typeof updatedItem.price === "number") {
 				const dbModel = await mongoose.model("menuitems", schemas.menuSchema);
-				const result = await dbModel.updateOne({_id: req.body.id}, updatedItem);
+				const result = await dbModel.updateOne({_id: sanitizeInput(req.body.id)}, updatedItem);
 				res.status(200).json(result);
 			} else {
 				res.status(400).json({message: "Incorrect data type"});
@@ -190,7 +190,7 @@ app.put("/staff/about/edit", authenticateToken, async (req, res) => {
 	try {
 		if (req.user.admin) { // Request done by an admin
 			const dbModel = await mongoose.model("about", schemas.aboutSchema);
-			const result = await dbModel.findOneAndUpdate({}, {description: req.body.about});
+			const result = await dbModel.findOneAndUpdate({}, {description: sanitizeInput(req.body.about)});
 			res.status(200).json(result);
 		} else {
 			res.status(401).json({message: "Only admins can edit description"});
@@ -242,7 +242,7 @@ app.get("/public/about", async (req, res) => {
 app.post("/public/order/find", async (req, res) => {
 	try {
 		const dbModel = await mongoose.model("orders", schemas.orderSchema);
-		const order = await dbModel.find({_id: req.body.id});
+		const order = await dbModel.find({_id: sanitizeInput(req.body.id)});
 		res.status(200).json(order);
 	} catch (error) {
 		res.status(500).json({message: "Internal error: " + error});
@@ -252,9 +252,9 @@ app.post("/public/order/find", async (req, res) => {
 app.post("/public/order/place", async (req, res) => {
 	try {
 		const newOrder = {
-			items: req.body.items,
-			customerName: req.body.name,
-			customerPhone: req.body.phone,
+			items: sanitizeInput(req.body.items),
+			customerName: sanitizeInput(req.body.name),
+			customerPhone: sanitizeInput(req.body.phone),
 			completed: false
 		}
 		const errorMsg = await verifyOrder(newOrder);
@@ -293,6 +293,25 @@ async function verifyOrder(order) {
 		problems += "\nWrongly formatted order";
 	}
 	return problems;
+}
+
+// Sanitize user input to prevent NoSQL injections
+function sanitizeInput(input) {
+	if (input instanceof Array) {
+		let cleanArray = [];
+		input.forEach(item => {
+			if (typeof item === "string") {
+				cleanArray.push(item.replaceAll("$", ""));
+			} else {
+				cleanArray.push(item);
+			}
+		});
+		return cleanArray;
+	} else if (typeof input === "string") {
+		return input.replaceAll("$", "");
+	} else {
+		return input;
+	}
 }
 
 // Start server
